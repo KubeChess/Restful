@@ -1,7 +1,7 @@
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version "2.3.0"
-    id "org.jetbrains.kotlin.plugin.allopen" version "2.3.0"
+    id 'org.jetbrains.kotlin.plugin.allopen' version "2.3.0"
     id 'io.quarkus'
 }
 
@@ -11,7 +11,7 @@ sourceSets {
             srcDirs = ['src']
         }
         resources {
-            srcDirs = ['src']
+            srcDirs = ['resources']
         }
     }
     test {
@@ -21,6 +21,11 @@ sourceSets {
     }
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    kotlinOptions {
+        allWarningsAsErrors = true
+    }
+}
 
 repositories {
     mavenCentral()
@@ -32,7 +37,16 @@ dependencies {
     implementation 'io.quarkus:quarkus-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-mailer'
+    implementation 'io.quarkus:quarkus-mongodb-client'
+    implementation 'org.mongodb:mongodb-driver-sync'
     implementation 'io.quarkus:quarkus-rest'
+    implementation 'org.json:json:20230227'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'at.favre.lib:bcrypt:0.10.1'
+    
     testImplementation 'io.quarkus:quarkus-junit'
     testImplementation 'io.rest-assured:rest-assured'
 }
@@ -46,10 +60,10 @@ java {
 }
 
 allOpen {
-    annotation("jakarta.ws.rs.Path")
-    annotation("jakarta.enterprise.context.ApplicationScoped")
-    annotation("jakarta.persistence.Entity")
-    annotation("io.quarkus.test.junit.QuarkusTest")
+    annotation('jakarta.ws.rs.Path')
+    annotation('jakarta.enterprise.context.ApplicationScoped')
+    annotation('jakarta.persistence.Entity')
+    annotation('io.quarkus.test.junit.QuarkusTest')
 }
 
 compileKotlin {
