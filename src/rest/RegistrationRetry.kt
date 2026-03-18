@@ -23,44 +23,45 @@ import core.PasswordService
 import core.EmailService
 import core.OtpService
 
-import model.VerificationRequest
+import model.RetryRequest
 import model.UserModel
 import model.UserStatus
 
-@Path("/v1/security/account/registration/verify")
-class RegistrationVerify {
+@Path("/v1/security/account/registration/retry")
+class RegistrationRetry {
 
     private val users: UserService
     private val passwords: PasswordService
     private val tokens: TokenService
     private val otpCodes: OtpService
+    private val mailing: EmailService
 
     @Inject constructor(
         users: UserService,
         passwords: PasswordService, 
         otpCodes: OtpService,
+        mailing: EmailService,
         tokens: TokenService
     ) {
         this.users = users
         this.passwords = passwords
         this.tokens = tokens
         this.otpCodes = otpCodes
+        this.mailing = mailing
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun verify(request: VerificationRequest): Response  {
-        val account = users.findOrPanic(request.identity)
+    fun retry(request: RetryRequest): Response  {
+        val account = users.findOrPanic(request.email)
         when (account.status) {
             UserStatus.PENDING -> {}
             UserStatus.ACTIVE -> return Response.notModified().build()
             else -> throw ForbiddenException("Account is not pending verification")
         }
-        val userId = account.id ?: throw IllegalStateException("User ID is null")
-        val reference = otpCodes.findOrPanic(userId)
-        otpCodes.verifyOtp(request.otpCode, reference)
-        val updated = users.markAsVerified(account)
-        return tokens.emitAuthorizedResponse(account)
+        val otpData = otpCodes.createOrRefresh(account)
+        mailing.sendVerificationEmail(request.email, otpData.otp)
+        return Response.ok().build()
     }
 }
