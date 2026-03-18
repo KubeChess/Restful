@@ -23,12 +23,12 @@ import core.PasswordService
 import core.EmailService
 import core.OtpService
 
-import model.RegistrationRequest
+import model.VerificationRequest
 import model.UserModel
 import model.UserStatus
 
-@Path("/v1/security/account/registration/init")
-class AccountRegister {
+@Path("/v1/security/account/registration/verify")
+class RegistrationVerify {
 
     private val users: UserService
     private val passwords: PasswordService
@@ -53,19 +53,17 @@ class AccountRegister {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun register(request: RegistrationRequest): Response  {
-        val user = UserModel(
-            username = request.username,
-            email = request.email,
-            tenant = "microchess",
-            status = UserStatus.PENDING
-        )
-        val created = users.createOrPanic(user)
-        val salt = passwords.generateSalt()
-        val password = passwords.hashPassword(request.password, salt, created)
-        passwords.createOrUpdate(password)
-        val otpData = otpCodes.createOrRefresh(created)
-        mailing.sendVerificationEmail(request.email, otpData.otp)
-        return Response.ok().build()
+    fun verify(request: VerificationRequest): Response  {
+        val account = users.findOrPanic(request.identity)
+        when (account.status) {
+            UserStatus.PENDING -> {}
+            UserStatus.ACTIVE -> return Response.notModified().build()
+            else -> throw ForbiddenException("Account is not pending verification")
+        }
+        val userId = account.id ?: throw IllegalStateException("User ID is null")
+        val reference = otpCodes.findOrPanic(userId)
+        otpCodes.verifyOtp(request.otpCode, reference)
+        val updated = users.markAsVerified(account)
+        return tokens.emitAuthorizedResponse(account)
     }
 }

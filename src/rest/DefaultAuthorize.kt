@@ -24,14 +24,14 @@ import model.UserModel
 class DefaultAuthorize {
 
     private val users: UserService
-    private val controller: TokenService
+    private val tokens: TokenService
 
     @Inject constructor(
         users: UserService,
-        controller: TokenService
+        tokens: TokenService
     ) {
         this.users = users
-        this.controller = controller
+        this.tokens = tokens
     }
 
     @POST @Produces(MediaType.APPLICATION_JSON)
@@ -40,9 +40,19 @@ class DefaultAuthorize {
         @HeaderParam("X-Jwt-Token")   customHeader: String?,
         @HeaderParam("Authorization") authHeader:   String?
     ): Response  {
-        val token = controller.extractAuthenticationToken(queryParam, customHeader, authHeader)
-        val model = controller.parseJsonWebToken(token)
-        users.assertIsPresent(model)
-        return controller.emitAuthorizedResponse(model)
+        val token = tokens.extractAuthenticationToken(queryParam, customHeader, authHeader)
+        val model = tokens.parseJsonWebToken(token)
+        ensureAccountStillExists(model)
+        return tokens.emitAuthorizedResponse(model)
+    }
+
+    fun ensureAccountStillExists(candidate: UserModel) {
+        val user = users.findOrPanic(candidate.username)
+        if (user != candidate) {
+            throw ForbiddenException("User account no longer exists or has changed")
+        }
+        if (user.status != model.UserStatus.ACTIVE) {
+            throw ForbiddenException("User account is not active")
+        }
     }
 }

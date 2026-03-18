@@ -27,14 +27,14 @@ const val GOOGLE_USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v2/useri
 class GoogleAuthorize {
 
     private val users: UserService
-    private val controller: TokenService
+    private val tokens: TokenService
 
     @Inject constructor(
         users: UserService,
-        controller: TokenService
+        tokens: TokenService
     ) {
         this.users = users
-        this.controller = controller
+        this.tokens = tokens
     }
 
     @POST @Produces(MediaType.APPLICATION_JSON)
@@ -43,14 +43,27 @@ class GoogleAuthorize {
         @HeaderParam("X-OAuth-Token") customHeader: String?,
         @HeaderParam("Authorization") authHeader:   String?
     ): Response  {
-        val token = controller.extractAuthenticationToken(queryParam, customHeader, authHeader)
+        val token = tokens.extractAuthenticationToken(queryParam, customHeader, authHeader)
         val userInfo = googleOAuthDecode(token)
         val email = JSONObject(userInfo).getString("email")
-        val username = email.substringBefore("@")
-        val model = UserModel(username = username, email = email, tenant = "google", status = UserStatus.ACTIVE)
+        val model = defaultUserModel(email)
         val result = users.findOrCreate(model)
-        return controller.emitAuthorizedResponse(result)
+        ensureAccountIsActive(result)
+        return tokens.emitAuthorizedResponse(result)
     }
+
+    fun ensureAccountIsActive(candidate: UserModel) {
+        if (candidate.status != UserStatus.ACTIVE) {
+            throw ForbiddenException("User account is not active")
+        }
+    }
+
+    fun defaultUserModel(email: String) = UserModel(
+        username = email.substringBefore("@"),
+        email = email,
+        tenant = "microchess",
+        status = UserStatus.ACTIVE
+    )
 
     fun googleOAuthDecode(token: String): String {
         val request = HttpRequest.newBuilder()

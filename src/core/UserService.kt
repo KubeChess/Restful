@@ -14,6 +14,7 @@ import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.InternalServerErrorException
 
 import model.UserModel
+import model.UserStatus
 
 @ApplicationScoped
 class UserService {
@@ -47,6 +48,17 @@ class UserService {
         }
     }
 
+    fun markAsVerified(candidate: UserModel) {
+        val update = Updates.combine(
+            Updates.set("status", UserStatus.ACTIVE)
+        )
+        val options = FindOneAndUpdateOptions()
+            .upsert(false)
+            .returnDocument(ReturnDocument.AFTER)
+        val filter = getMongoFilters(candidate)
+        collection.findOneAndUpdate(filter, update, options)
+    }
+
     fun createOrPanic(candidate: UserModel): UserModel {
         val filter = getMongoFilters(candidate)
         val existing = collection.find(filter).first()
@@ -58,15 +70,6 @@ class UserService {
             }
             else -> throw ClientErrorException("User already exists", 409)
         }
-    }
-
-    fun assertIsPresent(candidate: UserModel): UserModel {
-        val filter = getMongoFilters(candidate)
-        val existing = collection.find(filter).first()
-        if (existing == null || existing != candidate) {
-            throw NotFoundException("User not found")
-        }
-        return existing
     }
 
     fun findOrPanic(usernameOrEmail: String): UserModel {

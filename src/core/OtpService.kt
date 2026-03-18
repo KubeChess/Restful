@@ -13,7 +13,9 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.ClientErrorException
 import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.InternalServerErrorException
+import jakarta.ws.rs.ForbiddenException
 import org.bson.types.ObjectId
+
 import model.OtpModel
 import model.UserModel
 
@@ -56,7 +58,14 @@ class OtpService {
         return existing ?: throw NotFoundException("Otp not found")
     }
 
-    fun verifyOtp(otpText: String, otpModel: OtpModel): Boolean {
-        return otpText == otpModel.otp
+    fun verifyOtp(otpText: String, otpModel: OtpModel) {
+        if (otpText != otpModel.otp || otpModel.attempts >= 5) {
+            val filter = Filters.eq("_id", otpModel.id)
+            val updates = Updates.combine(
+                Updates.inc("attempts", 1),
+            )
+            collection.updateOne(filter, updates)
+            throw ForbiddenException("Invalid OTP code")
+        }
     }
 }
