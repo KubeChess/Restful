@@ -47,12 +47,16 @@ class UserService {
         }
     }
 
-    fun createOrPanic(candidate: UserModel): InsertOneResult {
+    fun createOrPanic(candidate: UserModel): UserModel {
         val filter = getMongoFilters(candidate)
         val existing = collection.find(filter).first()
         return when (existing) {
-            null -> throw ClientErrorException("User already exists", 409)
-            else -> collection.insertOne(candidate)
+            null -> {
+                val result = collection.insertOne(candidate)
+                val insertedId = result.insertedId?.asObjectId()?.value
+                candidate.copy(id = insertedId)
+            }
+            else -> throw ClientErrorException("User already exists", 409)
         }
     }
 

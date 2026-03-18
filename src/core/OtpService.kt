@@ -28,10 +28,14 @@ class OtpService {
             .getCollection("otps", OtpModel::class.java)
     }
 
-    fun createOrUpdate(userId: ObjectId): OtpModel {
+    fun createOrRefresh(user: UserModel): OtpModel {
+        val userId = user.id ?: throw IllegalArgumentException("User ID cannot be null")
         val filter = Filters.eq("userId", userId)
         val updates = Updates.combine(
-            Updates.set("otp", generateOtp())
+            Updates.set("otp", generateOtp()),
+            Updates.inc("iterations", 1),
+            Updates.set("timestamp", System.currentTimeMillis()),
+            Updates.set("attempts", 0)
         )
         val options = FindOneAndUpdateOptions()
             .returnDocument(ReturnDocument.AFTER)

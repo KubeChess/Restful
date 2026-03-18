@@ -1,3 +1,5 @@
+package core
+
 import io.quarkus.mailer.Mail
 import io.quarkus.mailer.Mailer
 import jakarta.enterprise.context.ApplicationScoped
@@ -18,6 +20,12 @@ class EmailService {
     fun sendHtmlEmail(to: String, subject: String, htmlBody: String) {
         mailer.send(
             Mail.withHtml(to, subject, htmlBody)
+        )
+    }
+
+    fun sendVerificationEmail(to: String, otp: String) {
+        mailer.send(
+            Mail.withHtml(to, "Verify Your Email", "<p>Your verification code is: $otp</p>")
         )
     }
 }

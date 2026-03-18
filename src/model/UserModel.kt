@@ -11,5 +11,5 @@ data class UserModel(
     val username: String,
     val email:    String,
     val tenant:   String,
-    val status:   String,
+    val status:   UserStatus,
 )

@@ -16,6 +16,7 @@ import org.bson.types.ObjectId
 import jakarta.enterprise.context.ApplicationScoped
 
 import model.UserModel
+import model.UserStatus
 
 @ApplicationScoped
 class TokenService {
@@ -69,7 +70,7 @@ class TokenService {
             username = claims.subject,
             email = claims["email"] as String,
             tenant = claims["tenant"] as String,
-            status = claims["status"] as String
+            status = claims["status"] as UserStatus
         )
     }
 

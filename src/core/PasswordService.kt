@@ -21,6 +21,7 @@ import model.UserModel
 class PasswordService {
 
     private val collection: MongoCollection<PasswordModel>
+    private val secureRandom = java.security.SecureRandom()
 
     @Inject constructor(client: MongoClient) {
         this.collection = client.getDatabase("microchess")
@@ -46,8 +47,13 @@ class PasswordService {
         return existing ?: throw NotFoundException("Password not found")
     }
 
-    fun hashPassword(plainPassword: String, user: UserModel): PasswordModel {
-        val salt = user.id.toString()
+    fun generateSalt(): String {
+        val max = 1000000
+        val value = secureRandom.nextInt(max)
+        return value.toString().padStart(6, '0')
+    }
+
+    fun hashPassword(plainPassword: String, salt: String, user: UserModel): PasswordModel {
         val salted = plainPassword + salt
         val hash = BCrypt.withDefaults().hashToString(12, salted.toCharArray())
         val userId = user.id ?: throw IllegalArgumentException("User ID cannot be null")

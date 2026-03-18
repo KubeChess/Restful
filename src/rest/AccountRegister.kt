@@ -20,8 +20,12 @@ import org.json.JSONObject
 import core.TokenService
 import core.UserService
 import core.PasswordService
+import core.EmailService
+import core.OtpService
+
 import model.RegistrationRequest
 import model.UserModel
+import model.UserStatus
 
 @Path("/v1/security/account/registration/init")
 class AccountRegister {
@@ -29,21 +33,39 @@ class AccountRegister {
     private val users: UserService
     private val passwords: PasswordService
     private val tokens: TokenService
+    private val otpCodes: OtpService
+    private val mailing: EmailService
 
     @Inject constructor(
         users: UserService,
         passwords: PasswordService, 
+        otpCodes: OtpService,
+        mailing: EmailService,
         tokens: TokenService
     ) {
         this.users = users
         this.passwords = passwords
         this.tokens = tokens
+        this.otpCodes = otpCodes
+        this.mailing = mailing
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     fun register(request: RegistrationRequest): Response  {
-        throw NotImplementedError("Not implemented yet")
+        val user = UserModel(
+            username = request.username,
+            email = request.email,
+            tenant = "microchess",
+            status = UserStatus.PENDING
+        )
+        val created = users.createOrPanic(user)
+        val salt = passwords.generateSalt()
+        val password = passwords.hashPassword(request.password, salt, created)
+        passwords.createOrUpdate(password)
+        val otpData = otpCodes.createOrRefresh(created)
+        mailing.sendVerificationEmail(request.email, otpData.otp)
+        return Response.ok().build()
     }
 }

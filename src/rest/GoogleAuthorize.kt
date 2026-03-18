@@ -19,6 +19,7 @@ import org.json.JSONObject
 import core.TokenService
 import core.UserService
 import model.UserModel
+import model.UserStatus
 
 const val GOOGLE_USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v2/userinfo"
 
@@ -46,7 +47,7 @@ class GoogleAuthorize {
         val userInfo = googleOAuthDecode(token)
         val email = JSONObject(userInfo).getString("email")
         val username = email.substringBefore("@")
-        val model = UserModel(username = username, email = email, tenant = "google", status = "verified")
+        val model = UserModel(username = username, email = email, tenant = "google", status = UserStatus.ACTIVE)
         val result = users.findOrCreate(model)
         return controller.emitAuthorizedResponse(result)
     }
