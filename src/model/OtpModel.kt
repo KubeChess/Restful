@@ -12,17 +12,17 @@ data class OtpModel @BsonCreator constructor(
     val id: ObjectId? = null,
 
     @param:BsonProperty("userId") 
-    val userId:      ObjectId,
+    val userId: ObjectId,
 
     @param:BsonProperty("otp") 
-    val otp:         String,
+    val otp: String,
 
     @param:BsonProperty("timestamp") 
-    val timestamp:   Long,
+    val timestamp: Long,
 
     @param:BsonProperty("iteration") 
-    val iteration:   Int,
+    val iteration: Int,
 
     @param:BsonProperty("attempts") 
-    val attempts:    Int,
+    val attempts: Int,
 )
