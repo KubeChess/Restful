@@ -23,7 +23,7 @@ import model.UserStatus
 
 const val GOOGLE_USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v2/userinfo"
 
-@Path("/v1/oauth/google/authorize")
+@Path("/v1/oauth/authorize/google")
 class GoogleAuthorize {
 
     private val users: UserService

@@ -20,7 +20,7 @@ import core.TokenService
 import core.UserService
 import model.UserModel
 
-@Path("/v1/security/jwt/authorize")
+@Path("/v1/security/authorize/jwt")
 class DefaultAuthorize {
 
     private val users: UserService
