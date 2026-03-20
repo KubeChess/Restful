@@ -46,9 +46,7 @@ class AccountLogin {
     fun login(request: LoginRequest): Response  {
         val user = users.findOrPanic(request.identity)
         val password = passwords.findOrPanic(user.id!!)
-        if (!passwords.verifyPassword(request.password, password)) {
-            throw ForbiddenException("Invalid credentials")
-        }
+        passwords.verifyPassword(request.password, password)
         return tokens.emitAuthorizedResponse(user)
     }
 }

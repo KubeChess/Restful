@@ -60,7 +60,7 @@ class RegistrationRetry {
             UserStatus.ACTIVE -> return Response.notModified().build()
             else -> throw ForbiddenException("Account is not pending verification")
         }
-        val otpData = otpCodes.createOrRefresh(account)
+        val otpData = otpCodes.createOrRefresh(account.id!!)
         mailing.sendVerificationEmail(request.email, otpData.otp)
         return Response.ok().build()
     }

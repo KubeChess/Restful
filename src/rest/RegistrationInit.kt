@@ -61,10 +61,8 @@ class RegistrationInit {
             status = UserStatus.PENDING
         )
         val created = users.createOrPanic(user)
-        val salt = passwords.generateSalt()
-        val password = passwords.hashPassword(request.password, salt, created)
-        passwords.createOrUpdate(password)
-        val otpData = otpCodes.createOrRefresh(created)
+        val _passw  = passwords.createOrUpdate(request.password, created.id!!)
+        val otpData = otpCodes.createOrRefresh(created.id)
         mailing.sendVerificationEmail(request.email, otpData.otp)
         return Response.ok().build()
     }
