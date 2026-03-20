@@ -27,6 +27,12 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
     }
 }
 
+tasks.named('quarkusGenerateCodeTests') {
+    doFirst {
+        mkdir 'build/classes/java/main'
+    }
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
@@ -45,10 +51,14 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-    implementation 'at.favre.lib:bcrypt:0.10.1'
-    
-    testImplementation 'io.quarkus:quarkus-junit'
+    implementation 'de.mkammerer:argon2-jvm:2.11'
+    implementation 'org.mongodb:bson:4.11.0'
+
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'io.mockk:mockk:1.13.10'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.quarkus:quarkus-test-mongodb'
 }
 
 group = 'fdero'
