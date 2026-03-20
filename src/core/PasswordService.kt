@@ -1,17 +1,16 @@
 package core
 
-import at.favre.lib.crypto.bcrypt.BCrypt
 import com.mongodb.client.MongoCollection
-import com.mongodb.client.result.InsertOneResult
 import com.mongodb.client.MongoClient
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Updates
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
+import de.mkammerer.argon2.Argon2Factory
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.ws.rs.ClientErrorException
 import jakarta.ws.rs.NotFoundException
+import jakarta.ws.rs.ForbiddenException
 import jakarta.ws.rs.InternalServerErrorException
 import org.bson.types.ObjectId
 import model.PasswordModel
@@ -21,18 +20,19 @@ import model.UserModel
 class PasswordService {
 
     private val collection: MongoCollection<PasswordModel>
-    private val secureRandom = java.security.SecureRandom()
+    private val argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id)
 
     @Inject constructor(client: MongoClient) {
         this.collection = client.getDatabase("microchess")
             .getCollection("passwords", PasswordModel::class.java)
     }
 
-    fun createOrUpdate(candidate: PasswordModel): PasswordModel {
-        val filter = Filters.eq("userId", candidate.userId)
+    fun createOrUpdate(plainTextPassword: String, userId: ObjectId): PasswordModel {
+        val filter = Filters.eq("userId", userId)
+        val passwordChars = plainTextPassword.toCharArray()
         val updates = Updates.combine(
-            Updates.set("hash", candidate.hash),
-            Updates.set("salt", candidate.salt)
+            Updates.set("hash", argon2.hash(2, 65536, 1, passwordChars)),
+            Updates.set("timestamp", System.currentTimeMillis())
         )
         val options = FindOneAndUpdateOptions()
             .returnDocument(ReturnDocument.AFTER)
@@ -43,29 +43,13 @@ class PasswordService {
 
     fun findOrPanic(userId: ObjectId): PasswordModel {
         val filter = Filters.eq("userId", userId)
-        val existing = collection.find(filter).first()
-        return existing ?: throw NotFoundException("Password not found")
+        return collection.find(filter).first()
+            ?: throw NotFoundException("Password not found")
     }
 
-    fun generateSalt(): String {
-        val max = 1000000
-        val value = secureRandom.nextInt(max)
-        return value.toString().padStart(6, '0')
-    }
-
-    fun hashPassword(plainPassword: String, salt: String, user: UserModel): PasswordModel {
-        val salted = plainPassword + salt
-        val hash = BCrypt.withDefaults().hashToString(12, salted.toCharArray())
-        val userId = user.id ?: throw IllegalArgumentException("User ID cannot be null")
-        return PasswordModel(
-            userId = userId,
-            hash = hash,
-            salt = salt
-        )
-    }
-
-    fun verifyPassword(plainPassword: String, password: PasswordModel): Boolean {
-        val salted = plainPassword + password.salt
-        return BCrypt.verifyer().verify(salted.toCharArray(), password.hash).verified
+    fun verifyPassword(plainPassword: String, password: PasswordModel) {
+        if (!argon2.verify(password.hash, plainPassword.toCharArray())) {
+            throw ForbiddenException("Invalid Password")
+        }
     }
 }
