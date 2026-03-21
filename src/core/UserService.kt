@@ -41,9 +41,11 @@ class UserService {
         val filter = getMongoFilters(candidate)
         val error = InternalServerErrorException("Failed to create or find user")
         val user = collection.findOneAndUpdate(filter, update, options) ?: throw error
-    
-        return when (user.username) {
-            candidate.username -> user
+        val retrievedIdentity = Pair(user.username, user.email)
+        val expectedIdentity = Pair(candidate.username, candidate.email)
+        
+        return when(retrievedIdentity) {
+            expectedIdentity -> user
             else -> throw ClientErrorException("Username already taken", 409)
         }
     }
@@ -82,10 +84,9 @@ class UserService {
         Filters.eq("username", usernameOrEmail),
         Filters.eq("email", usernameOrEmail)
     )
-    
+
     fun getMongoFilters(candidate: UserModel) = Filters.or(
-        Filters.eq("username", candidate.username),
-        Filters.eq("email", candidate.email),
-        Filters.eq("id", candidate.id)
+        getMongoFilters(candidate.username),
+        getMongoFilters(candidate.email)
     )
 }
