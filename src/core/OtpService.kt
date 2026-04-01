@@ -7,7 +7,7 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Updates
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
-import jakarta.enterprise.context.ApplicationScoped
+import jakarta.inject.Singleton
 import jakarta.inject.Inject
 import jakarta.ws.rs.ClientErrorException
 import jakarta.ws.rs.NotFoundException
@@ -18,19 +18,19 @@ import org.bson.types.ObjectId
 import model.OtpModel
 import model.UserModel
 
-@ApplicationScoped
+@Singleton
 class RegistrationOtpService : GenericOtpService {
     @Inject constructor(client: MongoClient) 
         : super(client, "registration-otps") {}
 }
 
-@ApplicationScoped
+@Singleton
 class PasswordResetOtpService : GenericOtpService {
     @Inject constructor(client: MongoClient) 
         : super(client, "password-reset-otps") {}
 }
 
-@ApplicationScoped
+@Singleton
 class AccountDeletionOtpService : GenericOtpService {
     @Inject constructor(client: MongoClient) 
         : super(client, "account-deletion-otps") {}

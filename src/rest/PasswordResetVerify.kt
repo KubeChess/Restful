@@ -21,9 +21,9 @@ import core.TokenService
 import core.UserService
 import core.PasswordService
 import core.EmailService
-import core.RegistrationOtpService
+import core.PasswordResetOtpService
 
-import model.VerificationRequest
+import model.PasswordResetVerificationRequest
 import model.UserModel
 import model.UserStatus
 
@@ -33,12 +33,12 @@ class PasswordResetVerify {
     private val users: UserService
     private val passwords: PasswordService
     private val tokens: TokenService
-    private val otpCodes: RegistrationOtpService
+    private val otpCodes: PasswordResetOtpService
 
     @Inject constructor(
         users: UserService,
         passwords: PasswordService, 
-        otpCodes: RegistrationOtpService,
+        otpCodes: PasswordResetOtpService,
         tokens: TokenService
     ) {
         this.users = users
@@ -50,12 +50,12 @@ class PasswordResetVerify {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun verify(request: VerificationRequest): Response  {
+    fun verify(request: PasswordResetVerificationRequest): Response  {
         val account = users.findOrPanic(request.identity)
         val password = passwords.findOrPanic(account.id!!)
-        val reference = otpCodes.findOrPanic(account.id!!)
+        val reference = otpCodes.findOrPanic(account.id)
         otpCodes.verifyOtp(request.otpCode, reference)
-        passwords.createOrUpdate(request.newPassword, account.id!!)
+        passwords.createOrUpdate(request.newPassword, account.id)
         return tokens.emitAuthorizedResponse(account)
     }
 }

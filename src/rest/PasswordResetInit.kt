@@ -23,7 +23,7 @@ import core.PasswordService
 import core.EmailService
 import core.PasswordResetOtpService
 
-import model.ResetRequest
+import model.PasswordResetRequest
 import model.UserModel
 import model.UserStatus
 
@@ -50,13 +50,13 @@ class PasswordResetInit {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun reset(request: ResetRequest): Response  {
+    fun reset(request: PasswordResetRequest): Response  {
         val account = users.findOrPanic(request.identity)
         if (account.tenant != "microchess") {
             throw ForbiddenException("Account registered as passwordless")
         }
         val otpData = otpCodes.createOrRefresh(account.id!!)
-        mailing.sendPasswordResetEmail(request.email, otpData.otp)
+        mailing.sendPasswordResetEmail(account.email, otpData.otp)
         return Response.ok().build()
     }
 }

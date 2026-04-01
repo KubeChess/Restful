@@ -23,7 +23,7 @@ import core.PasswordService
 import core.EmailService
 import core.RegistrationOtpService
 
-import model.RetryRequest
+import model.RegistrationRetryRequest
 import model.UserModel
 import model.UserStatus
 
@@ -53,7 +53,7 @@ class RegistrationRetry {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun retry(request: RetryRequest): Response  {
+    fun retry(request: RegistrationRetryRequest): Response  {
         val account = users.findOrPanic(request.email)
         when (account.status) {
             UserStatus.PENDING -> {}
