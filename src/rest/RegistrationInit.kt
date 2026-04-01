@@ -23,7 +23,6 @@ import core.PasswordService
 import core.EmailService
 import core.RegistrationOtpService
 
-import model.RegistrationRequest
 import model.UserModel
 import model.UserStatus
 
@@ -50,10 +49,16 @@ class RegistrationInit {
         this.mailing = mailing
     }
 
+    data class RequestBody(
+        val username: String,
+        val email:    String,
+        val password: String,
+    )
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun register(request: RegistrationRequest): Response  {
+    fun register(request: RequestBody): Response  {
         val user = UserModel(
             username = request.username,
             email = request.email,

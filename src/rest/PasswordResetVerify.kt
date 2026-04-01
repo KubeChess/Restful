@@ -23,7 +23,6 @@ import core.PasswordService
 import core.EmailService
 import core.PasswordResetOtpService
 
-import model.PasswordResetVerificationRequest
 import model.UserModel
 import model.UserStatus
 
@@ -47,10 +46,16 @@ class PasswordResetVerify {
         this.otpCodes = otpCodes
     }
 
+    data class RequestBody(
+        val identity:    String,
+        val otpCode:     String,
+        val newPassword: String,
+    )
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun verify(request: PasswordResetVerificationRequest): Response  {
+    fun verify(request: RequestBody): Response  {
         val account = users.findOrPanic(request.identity)
         val password = passwords.findOrPanic(account.id!!)
         val reference = otpCodes.findOrPanic(account.id)

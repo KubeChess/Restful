@@ -20,7 +20,6 @@ import org.json.JSONObject
 import core.TokenService
 import core.UserService
 import core.PasswordService
-import model.LoginRequest
 import model.UserModel
 
 @Path("/v1/security/account/login")
@@ -40,10 +39,15 @@ class AccountLogin {
         this.tokens = tokens
     }
 
+    data class RequestBody(
+        val identity: String,
+        val password: String,
+    )
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun login(request: LoginRequest): Response  {
+    fun login(request: RequestBody): Response  {
         val user = users.findOrPanic(request.identity)
         val password = passwords.findOrPanic(user.id!!)
         passwords.verifyPassword(request.password, password)

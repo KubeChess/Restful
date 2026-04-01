@@ -23,7 +23,6 @@ import core.PasswordService
 import core.EmailService
 import core.RegistrationOtpService
 
-import model.RegistrationVerificationRequest
 import model.UserModel
 import model.UserStatus
 
@@ -47,10 +46,15 @@ class RegistrationVerify {
         this.otpCodes = otpCodes
     }
 
+    data class RequestBody(
+        val identity: String,
+        val otpCode:  String,
+    )
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    fun verify(request: RegistrationVerificationRequest): Response  {
+    fun verify(request: RequestBody): Response  {
         val account = users.findOrPanic(request.identity)
         when (account.status) {
             UserStatus.PENDING -> {}
