@@ -1,24 +1,13 @@
 package rest
 
-import jakarta.ws.rs.GET
-import jakarta.ws.rs.POST
-import jakarta.ws.rs.Path
-import jakarta.ws.rs.Produces
-import jakarta.ws.rs.QueryParam
-import jakarta.ws.rs.core.Response
-import jakarta.ws.rs.HeaderParam
-import jakarta.ws.rs.core.MediaType
-import java.net.URI
-import java.net.http.HttpRequest
-import java.net.http.HttpClient
-import java.net.http.HttpResponse
-import jakarta.ws.rs.ForbiddenException
-import jakarta.inject.Inject
-import org.json.JSONObject
-
-import core.TokenService
-import core.UserService
-import model.UserModel
+import jakarta.ws.rs.core.*
+import jakarta.ws.rs.*
+import jakarta.inject.*
+import java.net.http.*
+import org.json.*
+import java.net.*
+import model.*
+import core.*
 
 @Path("/v1/security/authorize/jwt")
 class DefaultAuthorize {
