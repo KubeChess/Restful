@@ -1,6 +1,7 @@
 import model.OtpModel
 import model.UserModel
 import model.UserStatus
+import com.mongodb.client.MongoClient
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import org.hamcrest.CoreMatchers.`is`
@@ -9,13 +10,14 @@ import org.junit.jupiter.api.assertThrows
 import jakarta.ws.rs.ForbiddenException
 import org.junit.jupiter.api.Assertions.assertEquals
 import jakarta.inject.Inject
-import core.OtpService
+import core.GenericOtpService
 import org.bson.types.ObjectId
 
 @QuarkusTest
-class OtpServiceTest {
+class GenericOtpServiceTest {
 
-    @Inject lateinit var service: OtpService
+    @Inject lateinit var client: MongoClient
+    var service: GenericOtpService = GenericOtpService(client, "test-otps")
 
     @Test
     fun `createOrRefresh actually creates a new otp`() {

@@ -21,7 +21,7 @@ import core.TokenService
 import core.UserService
 import core.PasswordService
 import core.EmailService
-import core.OtpService
+import core.RegistrationOtpService
 
 import model.VerificationRequest
 import model.UserModel
@@ -33,12 +33,12 @@ class RegistrationVerify {
     private val users: UserService
     private val passwords: PasswordService
     private val tokens: TokenService
-    private val otpCodes: OtpService
+    private val otpCodes: RegistrationOtpService
 
     @Inject constructor(
         users: UserService,
         passwords: PasswordService, 
-        otpCodes: OtpService,
+        otpCodes: RegistrationOtpService,
         tokens: TokenService
     ) {
         this.users = users

@@ -19,14 +19,31 @@ import model.OtpModel
 import model.UserModel
 
 @ApplicationScoped
-class OtpService {
+class RegistrationOtpService : GenericOtpService {
+    @Inject constructor(client: MongoClient) 
+        : super(client, "registration-otps") {}
+}
+
+@ApplicationScoped
+class PasswordResetOtpService : GenericOtpService {
+    @Inject constructor(client: MongoClient) 
+        : super(client, "password-reset-otps") {}
+}
+
+@ApplicationScoped
+class AccountDeletionOtpService : GenericOtpService {
+    @Inject constructor(client: MongoClient) 
+        : super(client, "account-deletion-otps") {}
+}
+
+open class GenericOtpService {
 
     private val collection: MongoCollection<OtpModel>
     private val secureRandom = java.security.SecureRandom()
 
-    @Inject constructor(client: MongoClient) {
+    constructor(client: MongoClient, collectionName: String) {
         this.collection = client.getDatabase("microchess")
-            .getCollection("otps", OtpModel::class.java)
+            .getCollection(collectionName, OtpModel::class.java)
     }
 
     fun createOrRefresh(userId: ObjectId): OtpModel {
