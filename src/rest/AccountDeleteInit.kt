@@ -9,22 +9,28 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/authorize/jwt")
-class DefaultAuthorize {
+@Path("/v1/security/account/delete/init")
+class AccountDeleteInit {
 
     private val users: UserService
     private val tokens: TokenService
+    private val otpCodes: AccountDeletionOtpService
+    private val mailing: EmailService
 
     @Inject constructor(
         users: UserService,
+        otpCodes: AccountDeletionOtpService,
+        mailing: EmailService,
         tokens: TokenService
     ) {
         this.users = users
         this.tokens = tokens
+        this.otpCodes = otpCodes
+        this.mailing = mailing
     }
 
     @POST @Produces(MediaType.APPLICATION_JSON)
-    fun authorize(
+    fun delete(
         @QueryParam("jwt-token")      queryParam:   String?,
         @HeaderParam("X-Jwt-Token")   customHeader: String?,
         @HeaderParam("Authorization") authHeader:   String?
@@ -32,6 +38,8 @@ class DefaultAuthorize {
         val token = tokens.extractAuthenticationToken(queryParam, customHeader, authHeader)
         val model = tokens.parseJsonWebToken(token)
         users.ensureAccountStillExists(model)
+        val otpData = otpCodes.createOrRefresh(model.id!!)
+        mailing.sendAccountDeletetionVerificationEmail(model.email, otpData.otp)
         return tokens.emitAuthorizedResponse(model)
     }
 }

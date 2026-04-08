@@ -34,4 +34,10 @@ class EmailService {
             Mail.withHtml(to, "Reset Your Password", "<p>Your password reset code is: $otp</p>")
         )
     }
+
+    fun sendAccountDeletetionVerificationEmail(to: String, otp: String) {
+        mailer.send(
+            Mail.withHtml(to, "Delete Your Account", "<p>Your account deletion code is: $otp</p>")
+        )
+    }
 }

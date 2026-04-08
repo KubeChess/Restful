@@ -52,4 +52,9 @@ class PasswordService {
             throw ForbiddenException("Invalid Password")
         }
     }
+
+    fun deleteByUserId(userId: org.bson.types.ObjectId) {
+        val filter = Filters.eq("_id", userId)
+        collection.deleteOne(filter)
+    }
 }

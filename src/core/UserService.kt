@@ -11,6 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.ClientErrorException
 import jakarta.ws.rs.NotFoundException
+import jakarta.ws.rs.ForbiddenException
 import jakarta.ws.rs.InternalServerErrorException
 
 import model.UserModel
@@ -89,4 +90,19 @@ class UserService {
         getMongoFilters(candidate.username),
         getMongoFilters(candidate.email)
     )
+
+    fun ensureAccountStillExists(candidate: UserModel) {
+        val user = findOrPanic(candidate.username)
+        if (user != candidate) {
+            throw ForbiddenException("User account no longer exists or has changed")
+        }
+        if (user.status != model.UserStatus.ACTIVE) {
+            throw ForbiddenException("User account is not active")
+        }
+    }
+
+    fun deleteByUserId(userId: org.bson.types.ObjectId) {
+        val filter = Filters.eq("_id", userId)
+        collection.deleteOne(filter)
+    }
 }
