@@ -8,8 +8,11 @@ import jakarta.inject.Inject
 @ApplicationScoped
 class EmailService {
 
-    @Inject
     lateinit var mailer: Mailer
+
+    @Inject constructor(mailer: Mailer) {
+        this.mailer = mailer
+    }
 
     fun sendEmail(to: String, subject: String, body: String) {
         mailer.send(
