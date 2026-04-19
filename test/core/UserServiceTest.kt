@@ -1,3 +1,5 @@
+package core
+
 import model.PasswordModel
 import model.UserModel
 import model.UserStatus

@@ -1,3 +1,5 @@
+package core
+
 import model.OtpModel
 import model.UserModel
 import model.UserStatus
