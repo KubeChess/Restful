@@ -13,15 +13,15 @@ import jakarta.inject.Inject
 import core.GenericOtpService
 import org.bson.types.ObjectId
 
-/*
+
 @QuarkusTest
 class GenericOtpServiceTest {
 
     @Inject lateinit var client: MongoClient
-    var service: GenericOtpService = GenericOtpService(client, "test-otps")
 
     @Test
     fun `createOrRefresh actually creates a new otp`() {
+        val service = GenericOtpService(client, "test-otps")
         val targetUserId: ObjectId = ObjectId()
         service.createOrRefresh(targetUserId)
         val stored = service.findOrPanic(targetUserId)
@@ -31,6 +31,7 @@ class GenericOtpServiceTest {
 
     @Test
     fun `createOrRefresh actually refreshes an existing otp`() {
+        val service = GenericOtpService(client, "test-otps")
         val targetUserId: ObjectId = ObjectId()
         service.createOrRefresh(targetUserId)
         service.createOrRefresh(targetUserId)
@@ -41,6 +42,7 @@ class GenericOtpServiceTest {
 
     @Test
     fun `verifyOtp succeeds with valid otp`() {
+        val service = GenericOtpService(client, "test-otps")
         val targetUserId: ObjectId = ObjectId()
         val stored = service.createOrRefresh(targetUserId)
         service.verifyOtp(stored.otp, stored)
@@ -48,6 +50,7 @@ class GenericOtpServiceTest {
 
     @Test
     fun `verifyOtp fails with invalid otp`() {
+        val service = GenericOtpService(client, "test-otps")
         val targetUserId: ObjectId = ObjectId()
         val stored = service.createOrRefresh(targetUserId)
         assertThrows<ForbiddenException> {
@@ -59,6 +62,7 @@ class GenericOtpServiceTest {
 
     @Test
     fun `verifyOtp fails on saturates attempts`() {
+        val service = GenericOtpService(client, "test-otps")
         val targetUserId: ObjectId = ObjectId()
         var otpCode = service.createOrRefresh(targetUserId)
         for (attempt in 1..5) {
@@ -73,4 +77,4 @@ class GenericOtpServiceTest {
             service.verifyOtp(otpCode.otp, otpCode)
         }
     }
-}*/
+}
