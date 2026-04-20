@@ -9,7 +9,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/authorize/jwt")
+@Path("/v1/auth/authorize/native")
 class DefaultAuthorize {
 
     private val users: UserService
