@@ -8,6 +8,7 @@ import com.mongodb.client.model.Updates
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
 import jakarta.inject.Singleton
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.ClientErrorException
 import jakarta.ws.rs.NotFoundException
@@ -18,35 +19,23 @@ import org.bson.types.ObjectId
 import model.OtpModel
 import model.UserModel
 
-@Singleton
-class RegistrationOtpService : GenericOtpService {
-    @Inject constructor(client: MongoClient) 
-        : super(client, "registration-otps") {}
-}
-
-@Singleton
-class PasswordResetOtpService : GenericOtpService {
-    @Inject constructor(client: MongoClient) 
-        : super(client, "password-reset-otps") {}
-}
-
-@Singleton
-class AccountDeletionOtpService : GenericOtpService {
-    @Inject constructor(client: MongoClient) 
-        : super(client, "account-deletion-otps") {}
-}
-
-open class GenericOtpService {
+class GenericOtpService: OtpService {
 
     private val collection: MongoCollection<OtpModel>
     private val secureRandom = java.security.SecureRandom()
 
     constructor(client: MongoClient, collectionName: String) {
-        this.collection = client.getDatabase("microchess")
+        this.collection = client.getDatabase("auth")
             .getCollection(collectionName, OtpModel::class.java)
     }
 
-    fun createOrRefresh(userId: ObjectId): OtpModel {
+    fun generateOtp(): String {
+        val max = 1000000
+        val value = secureRandom.nextInt(max)
+        return value.toString().padStart(6, '0')
+    }
+
+    override fun createOrRefresh(userId: ObjectId): OtpModel {
         val filter = Filters.eq("userId", userId)
         val updates = Updates.combine(
             Updates.set("otp", generateOtp()),
@@ -61,19 +50,13 @@ open class GenericOtpService {
             ?: throw InternalServerErrorException("Failed to create or update otp")
     }
 
-    fun generateOtp(): String {
-        val max = 1000000
-        val value = secureRandom.nextInt(max)
-        return value.toString().padStart(6, '0')
-    }
-
-    fun findOrPanic(userId: ObjectId): OtpModel {
+    override fun findOrPanic(userId: ObjectId): OtpModel {
         val filter = Filters.eq("userId", userId)
         val existing = collection.find(filter).first()
         return existing ?: throw NotFoundException("Otp not found")
     }
 
-    fun verifyOtp(otpText: String, otpModel: OtpModel) {
+    override fun verifyOtp(otpText: String, otpModel: OtpModel) {
         if (otpText != otpModel.otp || otpModel.attempts >= 5) {
             val filter = Filters.eq("_id", otpModel.id)
             val updates = Updates.combine(

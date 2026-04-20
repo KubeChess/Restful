@@ -54,6 +54,8 @@ dependencies {
     implementation 'de.mkammerer:argon2-jvm:2.11'
     implementation 'org.mongodb:bson:4.11.0'
 
+    testImplementation 'io.quarkus:quarkus-junit-mockito'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.3.1' 
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'io.mockk:mockk:1.13.10'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
