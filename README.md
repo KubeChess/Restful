@@ -1,66 +1,53 @@
-# helloworld
+# Microchess-Authentication
+This microservice handles both requests validation for traffik directed towards the other microservices of the platform, and the actual account 
+creation and security management. It's a crucial part of the overall microservices designed.
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+- 🛡 **Auth Gateway** | Validates JWT tokens on every inbound request via the Kubernetes API
+- 🔑 **Auth API** | Exposes `/auth/*` endpoints for user registration, login, password reset, and account deletion
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Architecture
+The MicroChess platform is kubernetes native, and as such, its designed
+accordigly. The concept is that the `traefik ingress controller` 
+(available in K3s by default) is capable of outsourcing authorization 
+of a request at route level. The flow of network traffik is herby the following:
 
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-
-```shell script
-./gradlew quarkusDev
+```
+                            ┌─────────────┐        ┌────────────────┐
+                 ┌────────► | ROUTE /auth | ────►  | AUTHENTICATION |
+                 │          └─────────────┘        └────────────────┘
+            ┌─────────┐            ↑ 
+   WEB ────►│ Ingress │            ↓
+            └─────────┘  ┌───────────────────┐      
+                 │       |  ┌─────────────┐  |     ┌────────────────┐
+                 └───────┼► | ROUTE /foo  | ─┼──►  |  SERVICE: foo  |
+                 │       |  └─────────────┘  |     └────────────────┘
+                 │       |  ┌─────────────┐  |     ┌────────────────┐
+                 └───────┼► | ROUTE /bar  | ─┼──►  |  SERVICE: bar  |
+                 |       |  └─────────────┘  |     └────────────────┘
+                 │       |  ┌─────────────┐  |     ┌────────────────┐
+                 └───────┼► | ..........  | ─┼──►  | .............  |
+                         |  └─────────────┘  |     └────────────────┘
+                         └───────────────────┘
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Middleware Configuration
+The other MicroChess components that want to use this microservice as a source
+of authentication (e.g. every other component) are supposed to implement the 
+following middleware and then reference it from the ingress route.
 
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./gradlew build
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: auth-forward
+  namespace: default
+spec:
+  forwardAuth:
+    address: http://authentication.microchess.svc.cluster.local/v1/auth/authorize/native
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-User-Name
+      - X-User-Email
+      - X-User-ID
+      - X-User-Status
 ```
-
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./gradlew build -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./build/helloworld-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
-
-## Related Guides
-
-- Kotlin ([guide](https://quarkus.io/guides/kotlin)): Write your services in Kotlin
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
