@@ -11,7 +11,7 @@ import core.*
 
 const val GOOGLE_USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v2/userinfo"
 
-@Path("/v1/oauth/authorize/google")
+@Path("/v1/auth/authorize/google")
 class GoogleAuthorize {
 
     private val users: UserService

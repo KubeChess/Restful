@@ -9,7 +9,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/account/registration/retry")
+@Path("/v1/auth/account-register/retry")
 class RegistrationRetry {
 
     private val users: UserService

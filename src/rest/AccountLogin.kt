@@ -9,7 +9,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/account/login")
+@Path("/v1/auth/login/native")
 class AccountLogin {
 
     private val users: UserService

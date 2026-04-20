@@ -9,7 +9,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/account/registration/init")
+@Path("/v1/auth/account-register/init")
 class RegistrationInit {
 
     private val users: UserService
@@ -49,7 +49,7 @@ class RegistrationInit {
             status = UserStatus.PENDING
         )
         val created = users.createOrPanic(user)
-        val _passw  = passwords.createOrUpdate(request.password, created.id!!)
+        passwords.createOrUpdate(request.password, created.id!!)
         val otpData = otpCodes.createOrRefresh(created.id)
         mailing.sendVerificationEmail(request.email, otpData.otp)
         return Response.ok().build()

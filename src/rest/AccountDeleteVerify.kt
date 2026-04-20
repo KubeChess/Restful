@@ -10,7 +10,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/account/delete/verify")
+@Path("/v1/auth/account-delete/verify")
 class AccountDeleteVerify {
 
     private val users: UserService

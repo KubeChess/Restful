@@ -9,7 +9,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/account/registration/verify")
+@Path("/v1/auth/account-register/verify")
 class RegistrationVerify {
 
     private val users: UserService

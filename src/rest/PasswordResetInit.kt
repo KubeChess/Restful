@@ -9,7 +9,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/account/password/reset/init")
+@Path("/v1/auth/password-reset/init")
 class PasswordResetInit {
 
     private val users: UserService

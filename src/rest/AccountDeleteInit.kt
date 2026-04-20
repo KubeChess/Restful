@@ -9,7 +9,7 @@ import java.net.*
 import model.*
 import core.*
 
-@Path("/v1/security/account/delete/init")
+@Path("/v1/auth/account-delete/init")
 class AccountDeleteInit {
 
     private val users: UserService
