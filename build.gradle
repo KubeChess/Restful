@@ -63,9 +63,6 @@ dependencies {
     testImplementation 'io.quarkus:quarkus-test-mongodb'
 }
 
-group = 'fdero'
-version = '1.0.0-SNAPSHOT'
-
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21

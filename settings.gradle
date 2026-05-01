@@ -8,4 +8,10 @@ pluginManagement {
         id "${quarkusPluginId}" version "${quarkusPluginVersion}"
     }
 }
-rootProject.name='helloworld'
+
+gradle.beforeProject {
+    it.group = 'com.microchess.fdero'
+    it.version = '1.0.0-SNAPSHOT'
+}
+
+rootProject.name='microchess-authentication'
