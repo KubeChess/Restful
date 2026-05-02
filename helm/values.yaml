@@ -8,8 +8,6 @@ config:
 ports:
   - containerPort: 80
     name: http
-  - containerPort: 4369
-    name: epmd
 
 image:
   registry: docker.io
