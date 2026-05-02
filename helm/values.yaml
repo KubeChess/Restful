@@ -1,0 +1,29 @@
+config:
+  namespace: "microchess"
+  mongodbUrl: "mongodb://microchess-mongodb.microchess.svc.cluster.local:27017"
+  hostname: "api.microchess.fdero.com"
+  routePrefix: "/v1/auth"
+  prefix: microchess-auth
+
+ports:
+  - containerPort: 80
+    name: http
+  - containerPort: 4369
+    name: epmd
+
+image:
+  registry: docker.io
+  repo: fdero/microchess-authentication
+  tag: latest
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+replicas:
+  min: 2
+  max: 3

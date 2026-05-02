@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Values.config.prefix }}-dp"
+  namespace: "{{ .Values.config.namespace }}"
+spec:
+  replicas: {{ .Values.replicas.min }}
+  selector:
+    matchLabels:
+      app: {{ .Values.config.prefix }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.prefix }}
+    spec:
+      containers:
+      - name: authentication
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repo }}:{{ .Values.image.tag }}"
+        ports: 
+          {{- .Values.ports | toYaml | nindent 10 }}
+        resources: 
+          {{- .Values.resources | toYaml | nindent 10 }}
+        env:
+          - name: MONGODB_URL
+            value: "{{ .Values.config.mongodbUrl }}"
