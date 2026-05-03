@@ -1,6 +1,6 @@
 config:
   namespace: "microchess"
-  mongodbHost: "mongodb://microchess-mongodb.microchess.svc.cluster.local:27017"
+  mongodbHost: "microchess-mongodb.microchess.svc.cluster.local:27017"
   hostname: "api.microchess.fdero.com"
   routePrefix: "/v1/auth"
   prefix: microchess-auth
