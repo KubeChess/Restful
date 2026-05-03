@@ -21,8 +21,8 @@ spec:
         resources: 
           {{- .Values.resources | toYaml | nindent 10 }}
         env:
-          - name: MONGODB_URL
-            value: "{{ .Values.config.mongodbUrl }}"
+          - name: MONGODB_HOST
+            value: "{{ .Values.config.mongodbHost }}"
   
           - name: SMTP_USERNAME
             valueFrom:
