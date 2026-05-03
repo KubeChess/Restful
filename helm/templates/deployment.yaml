@@ -27,17 +27,17 @@ spec:
           - name: SMTP_USERNAME
             valueFrom:
               secretKeyRef:
-                name: smtp-secret
+                name: "{{ .Values.config.prefix }}-smtp-secret"
                 key: email
 
           - name: SMTP_FROM
             valueFrom:
               secretKeyRef:
-                name: smtp-secret
+                name: "{{ .Values.config.prefix }}-smtp-secret"
                 key: from
 
           - name: SMTP_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: smtp-secret
+                name: "{{ .Values.config.prefix }}-smtp-secret"
                 key: password
